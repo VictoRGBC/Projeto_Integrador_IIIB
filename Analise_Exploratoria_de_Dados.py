@@ -8,7 +8,6 @@ sns.set(style="whitegrid")
 plt.rcParams['figure.figsize'] = (12, 6)
 
 def carregar_dados_para_analise(nome_arquivo):
-    """Carrega o arquivo CSV já tratado."""
     try:
         df = pd.read_csv(
             nome_arquivo,
@@ -16,7 +15,6 @@ def carregar_dados_para_analise(nome_arquivo):
             decimal=',',
             encoding='utf-8-sig'
         )
-        # Converte Data e define Índice
         df['Data'] = pd.to_datetime(df['Data'])
         df = df.set_index('Data').sort_index()
         
@@ -28,12 +26,9 @@ def carregar_dados_para_analise(nome_arquivo):
         return None
 
 def gerar_graficos_analise(df):
-    """
-    Gera conjunto de gráficos para análise exploratória da série temporal.
-    """
     # Verifica se há dados nulos gerados pelo 'asfreq' e preenche ou avisa
     if df.isnull().values.any():
-        df = df.interpolate(method='linear') # Preenche buracos eventuais na série
+        df = df.interpolate(method='linear')
 
     # 1. Plotagem da Série Histórica Completa
     plt.figure()
@@ -55,7 +50,6 @@ def gerar_graficos_analise(df):
 
     # 3. Decomposição Sazonal
     print("Gerando decomposição sazonal...")
-    # O period=12 é redundante se definimos asfreq('MS'), mas mantive por segurança
     decomposicao = seasonal_decompose(df['Inflacao_Alim'], model='additive', period=12)
     fig = decomposicao.plot()
     fig.set_size_inches(12, 10)
@@ -74,13 +68,11 @@ def gerar_graficos_analise(df):
 
     # 5. Autocorrelação (ACF) e Autocorrelação Parcial (PACF)
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
-    # method='ywm' é mais estável para evitar avisos em versões novas
     plot_acf(df['Inflacao_Alim'], lags=24, ax=ax1, title='Autocorrelação (ACF)')
     plot_pacf(df['Inflacao_Alim'], lags=24, ax=ax2, title='Autocorrelação Parcial (PACF)', method='ywm')
     plt.tight_layout()
     plt.show()
 
-# --- Execução ---
 arquivo_para_ler = 'dados_inflacao_corrigidos.csv'
 df_ipc = carregar_dados_para_analise(arquivo_para_ler)
 
